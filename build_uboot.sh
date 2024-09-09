@@ -33,8 +33,8 @@ fi
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
-git clone -b v2023.04-ti-09.02.00.009-BeagleY-AI-Production https://github.com/Grippy98/u-boot
-
+#git clone -b v2023.04-ti-09.02.00.009-BeagleY-AI-Production https://github.com/Grippy98/u-boot
+git clone -b v2023.04-ti-09.02.00.009-BeagleY-AI-Production https://github.com/beagleboard/u-boot.git
 
 mkdir -p ${DIR}/public/
 
