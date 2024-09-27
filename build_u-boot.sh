@@ -12,29 +12,43 @@ ${CC64}gcc --version
 
 DIR=$PWD
 
+TI_FIRMWARE="10.00.06"
+TRUSTED_FIRMWARE="v2.11.0"
+OPTEE="4.3.0"
+UBOOT="v2023.04-ti-09.02.00.009-BeagleY-AI-Production"
+#UBOOT="v2024.10-rc5"
+
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
-	#git clone -b 10.00.06 https://openbeagle.org/beagleboard/ti-linux-firmware.git --depth=10
-	git -c http.sslVerify=false clone -b 10.00.06 https://git.gfnd.rcn-ee.org/TexasInstruments/ti-linux-firmware.git --depth=10
+	if [ -f .gitlab-runner ] ; then
+		git clone -b ${TI_FIRMWARE} https://git.gfnd.rcn-ee.org/TexasInstruments/ti-linux-firmware.git --depth=10
+	else
+		git clone -b ${TI_FIRMWARE} https://github.com/beagleboard/ti-linux-firmware.git --depth=10
+	fi
 fi
 
 #rm -rf ./trusted-firmware-a/ || true
 if [ ! -d ./trusted-firmware-a/ ] ; then
-	#git clone -b master https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git --depth=10
-	git -c http.sslVerify=false clone -b v2.11.0 https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git --depth=10
+	if [ -f .gitlab-runner ] ; then
+		git clone -b ${TRUSTED_FIRMWARE} https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git --depth=10
+	else
+		git clone -b ${TRUSTED_FIRMWARE} https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git --depth=10
+	fi
 fi
 
 #rm -rf ./optee_os/ || true
 if [ ! -d ./optee_os/ ] ; then
-	#git clone -b 4.3.0 https://github.com/OP-TEE/optee_os.git --depth=10
-	git -c http.sslVerify=false clone -b 4.3.0 https://git.gfnd.rcn-ee.org/mirror/optee_os.git --depth=10
+	if [ -f .gitlab-runner ] ; then
+		git clone -b ${OPTEE} https://git.gfnd.rcn-ee.org/mirror/optee_os.git --depth=10
+	else
+		git clone -b ${OPTEE} https://github.com/OP-TEE/optee_os.git --depth=10
+	fi
 fi
 
 if [ -d ./u-boot/ ] ; then
 	rm -rf ./u-boot/
 fi
-#git clone -b v2023.04-ti-09.02.00.009-BeagleY-AI-Production https://github.com/Grippy98/u-boot
-git clone -b v2023.04-ti-09.02.00.009-BeagleY-AI-Production https://github.com/beagleboard/u-boot.git
+git clone -b ${UBOOT} https://github.com/beagleboard/u-boot.git
 
 mkdir -p ${DIR}/public/
 
@@ -47,7 +61,7 @@ OPTEE_PLATFORM=k3-am62x
 OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
 
 echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
-make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE="ccache $CC64" CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
+make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
 
 if [ ! -f ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ] ; then
 	echo "Failure in ./trusted-firmware-a/"
@@ -57,7 +71,7 @@ else
 fi
 
 echo "make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all"
-make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE="ccache $CC32" CROSS_COMPILE64="ccache $CC64" CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all
+make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all
 
 if [ ! -f ./optee/core/tee-pager_v2.bin ] ; then
 	echo "Failure in ${OPTEE_DIR}"
@@ -72,7 +86,7 @@ echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 j722s_evm_r5_defcon
 make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 j722s_evm_r5_defconfig am67a_beagley_ai_r5.config
 
 echo "make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE="ccache $CC32" BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/
 
 if [ ! -f ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ] ; then
 	echo "Failure in u-boot CORTEXR build of [$UBOOT_CFG_CORTEXR]"
@@ -92,7 +106,7 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 		make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 j722s_evm_a53_defconfig am67a_beagley_ai_a53.config
 
 		echo "make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-		make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE="ccache $CC64" BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+		make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
 
 		if [ ! -f ${DIR}/CORTEXA/tispl.bin${SIGNED} ] ; then
 			echo "Failure in u-boot CORTEXA build of [$UBOOT_CFG_CORTEXA]"
