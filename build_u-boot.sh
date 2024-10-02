@@ -35,8 +35,8 @@ if [ ! -d ./trusted-firmware-a/ ] ; then
 		echo "git clone -b ${TRUSTED_FIRMWARE} https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git"
 		git clone -b ${TRUSTED_FIRMWARE} https://git.gfnd.rcn-ee.org/mirror/trusted-firmware-a.git --depth=10
 	else
-		echo "git clone -b ${TRUSTED_FIRMWARE} https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git"
-		git clone -b ${TRUSTED_FIRMWARE} https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git --depth=10
+		echo "git clone -b ${TRUSTED_FIRMWARE} https://github.com/TrustedFirmware-A/trusted-firmware-a.git"
+		git clone -b ${TRUSTED_FIRMWARE} https://github.com/TrustedFirmware-A/trusted-firmware-a.git --depth=10
 	fi
 fi
 
