@@ -12,10 +12,10 @@ ${CC64}gcc --version
 
 DIR=$PWD
 
-TI_FIRMWARE="10.00.06"
-TRUSTED_FIRMWARE="v2.11.0"
-OPTEE="4.3.0"
-UBOOT="v2023.04-ti-09.02.00.009-BeagleY-AI-Production"
+TI_FIRMWARE="11.00.05"
+TRUSTED_FIRMWARE="v2.12.0"
+OPTEE="4.5.0"
+UBOOT="v2025.04-rc3-BeagleY-AI"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
@@ -66,9 +66,12 @@ mkdir -p ${DIR}/public/
 SOC_NAME=j722s
 SECURITY_TYPE=hs-fs
 SIGNED=
-TFA_BOARD=lite
+TFA_BOARD="lite"
+TFA_EXTRA_ARGS=
 OPTEE_PLATFORM="k3-am62x"
 OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
+UBOOT_CFG_CORTEXR="am67a_beagley_ai_r5_defconfig"
+UBOOT_CFG_CORTEXA="am67a_beagley_ai_a53_defconfig"
 
 echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
 make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
@@ -94,8 +97,8 @@ fi
 
 rm -rf ${DIR}/optee/ || true
 
-echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 j722s_evm_r5_defconfig am67a_beagley_ai_r5.config"
-make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 j722s_evm_r5_defconfig am67a_beagley_ai_r5.config
+echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
+make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
 
 echo "make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
 make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/
@@ -115,8 +118,8 @@ rm -rf ${DIR}/CORTEXR/ || true
 
 if [ -f ${DIR}/public/bl31.bin ] ; then
 	if [ -f ${DIR}/public/tee-pager_v2.bin ] ; then
-		echo "make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 j722s_evm_a53_defconfig am67a_beagley_ai_a53.config"
-		make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 j722s_evm_a53_defconfig am67a_beagley_ai_a53.config
+		echo "make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA"
+		make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA
 
 		echo "make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
 		make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
