@@ -13,8 +13,8 @@ ${CC64}gcc --version
 DIR=$PWD
 
 TI_FIRMWARE="10.00.06"
-TRUSTED_FIRMWARE="v2.11.0"
-OPTEE="4.3.0"
+TRUSTED_FIRMWARE="lts-v2.12.1"
+OPTEE="4.5.0"
 UBOOT="v2023.04-ti-09.02.00.009-BeagleY-AI-Production"
 
 #rm -rf ./ti-linux-firmware/ || true
@@ -66,7 +66,7 @@ mkdir -p ${DIR}/public/
 SOC_NAME=j722s
 SECURITY_TYPE=hs-fs
 SIGNED=
-TFA_BOARD=lite
+TFA_BOARD="lite"
 OPTEE_PLATFORM="k3-am62x"
 OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
 
