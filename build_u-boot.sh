@@ -15,7 +15,7 @@ DIR=$PWD
 TI_FIRMWARE="11.00.14"
 TRUSTED_FIRMWARE="lts-v2.12.3"
 OPTEE="4.6.0"
-UBOOT="v2025.07-rc2-Beagle"
+UBOOT="v2025.07-rc3-Beagle"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
