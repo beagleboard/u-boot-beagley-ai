@@ -12,7 +12,7 @@ ${CC64}gcc --version
 
 DIR=$PWD
 
-TI_FIRMWARE="11.00.14"
+TI_FIRMWARE="11.00.15"
 TRUSTED_FIRMWARE="lts-v2.12.3"
 OPTEE="4.6.0"
 UBOOT="v2025.07-rc3-Beagle"
