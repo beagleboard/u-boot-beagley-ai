@@ -12,10 +12,11 @@ ${CC64}gcc --version
 
 DIR=$PWD
 
-TI_FIRMWARE="${TI_FIRMWARE:-11.01.01}"
-TRUSTED_FIRMWARE="v2.13.0"
-OPTEE="4.6.0"
-UBOOT="${UBOOT:-v2025.07-rc4-Beagle}"
+. version.sh
+
+echo "****************************************************"
+echo [${UBOOT}:${TRUSTED_FIRMWARE}:${OPTEE}:${TI_FIRMWARE}]
+echo "****************************************************"
 
 #rm -rf ./ti-linux-firmware/ || true
 if [ ! -d ./ti-linux-firmware/ ] ; then
