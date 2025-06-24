@@ -17,9 +17,9 @@ if [ -f ./u-boot.img ] ; then
 	rm -rf ./u-boot.img || true
 fi
 
-wget https://github.com/beagleboard/u-boot-beagley-ai/releases/download/v2025.07-rc4-Beagle-11.01.01/tiboot3.bin
-wget https://github.com/beagleboard/u-boot-beagley-ai/releases/download/v2025.07-rc4-Beagle-11.01.01/tispl.bin
-wget https://github.com/beagleboard/u-boot-beagley-ai/releases/download/v2025.07-rc4-Beagle-11.01.01/u-boot.img
+wget https://github.com/beagleboard/u-boot-beagley-ai/releases/download/TAG/tiboot3.bin
+wget https://github.com/beagleboard/u-boot-beagley-ai/releases/download/TAG/tispl.bin
+wget https://github.com/beagleboard/u-boot-beagley-ai/releases/download/TAG/u-boot.img
 
 if [ -d /boot/firmware/ ] ; then
 	cp -v ./tiboot3.bin /boot/firmware/
