@@ -15,6 +15,6 @@ echo "${UBOOT}-${TI_FIRMWARE} release" > ${wfile}
 
 git commit -a -F ${wfile} -s
 
-git tag -a -F ${UBOOT}-${TI_FIRMWARE} -m "${UBOOT}-${TI_FIRMWARE}"
+git tag -a ${UBOOT}-${TI_FIRMWARE} -m "${UBOOT}-${TI_FIRMWARE}"
 
 git push origin main --tags
