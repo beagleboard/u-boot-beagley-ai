@@ -1,5 +1,7 @@
 #!/bin/bash
 
+wfile=$(mktemp /tmp/builder.XXXXXXXXX)
+
 . version.sh
 
 echo "****************************************************"
@@ -9,7 +11,10 @@ echo "****************************************************"
 cp public/base.sh public/get_n_install.sh
 sed -i -e 's:TAG:'${UBOOT}'-'${TI_FIRMWARE}':g' public/get_n_install.sh
 
-git commit -a -m 'Release ${UBOOT}-${TI_FIRMWARE}' -s
-git tag -a ${UBOOT}-${TI_FIRMWARE} -m "${UBOOT}-${TI_FIRMWARE}"
+echo "${UBOOT}-${TI_FIRMWARE} release" > ${wfile}
 
-echo "git push origin main --tags"
+git commit -a -F ${wfile} -s
+
+git tag -a -F ${UBOOT}-${TI_FIRMWARE} -m "${UBOOT}-${TI_FIRMWARE}"
+
+git push origin main --tags
