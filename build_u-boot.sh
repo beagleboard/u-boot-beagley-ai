@@ -2,8 +2,6 @@
 
 #apt-get install -y -q bc bison device-tree-compiler flex gcc-arm-linux-gnueabihf libssl-dev python3-cryptography python3-dev python3-jsonschema python3-pycryptodome python3-pyelftools python3-setuptools python3-yaml swig yamllint
 
-#wget https://beagley-ai.beagleboard.io/u-boot-beagley-ai/get_n_install.sh ; chmod +x get_n_install.sh ; sudo ./get_n_install.sh
-
 CC32=arm-linux-gnueabihf-
 CC64=aarch64-linux-gnu-
 
@@ -58,8 +56,8 @@ fi
 global="https://github.com/beagleboard/u-boot.git"
 mirror="${global}"
 
-echo "git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/"
-git clone -b ${UBOOT} ${mirror} --depth=10 ./u-boot/
+echo "git clone -b ${UBOOT} ${mirror} --depth=1 ./u-boot/"
+git clone -b ${UBOOT} ${mirror} --depth=1 ./u-boot/
 
 mkdir -p ${DIR}/public/
 
