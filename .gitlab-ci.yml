@@ -9,6 +9,26 @@ before_script:
   - git config --global user.name "$GITLAB_USER_NAME"
   - git config --global advice.detachedHead false
 
+build-debian-14-arm64:
+  image: robertcnelson/beagle-devscripts-kernel-debian-14-arm64:latest
+  # https://openbeagle.org/beagleboard/ci-docker-images
+  cache:
+    key: "$CI_PROJECT_NAME-debian-14-arm64"
+    paths:
+      - ccache.tar.lz4
+  tags:
+    - docker-aarch64-rpi4-ci
+  stage: build
+  script:
+    - mkdir -p /root/.cache/ccache/ || true
+    - tar --use-compress-program=lz4 -xf ccache.tar.lz4 -C / || true
+    - ccache -M 1G
+    - ccache -z
+    - ./build_u-boot.sh
+    - ccache -sv
+    - tar --use-compress-program=lz4 -cf ccache.tar.lz4 /root/.cache/ccache/
+    - du -sh ccache.tar.lz4
+
 build-debian-13-arm64:
   image: robertcnelson/beagle-devscripts-kernel-debian-13-arm64:latest
   # https://openbeagle.org/beagleboard/ci-docker-images
