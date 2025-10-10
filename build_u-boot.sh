@@ -2,8 +2,26 @@
 
 #apt-get install -y -q bc bison device-tree-compiler flex gcc-arm-linux-gnueabihf libssl-dev python3-cryptography python3-dev python3-jsonschema python3-pycryptodome python3-pyelftools python3-setuptools python3-yaml swig yamllint
 
-CC32=arm-linux-gnueabihf-
+check_command() {
+    command -v -- "$1" >/dev/null 2>&1
+}
+
+# Check for debian compiler
+if check_command arm-linux-gnueabihf-gcc; then
+	CC32=arm-linux-gnueabihf-
+# Check for fedora compiler
+elif check_command arm-linux-gnu-gcc; then
+	CC32=arm-linux-gnu-
+else
+	echo "CC32 not found"
+	exit 1
+fi
+
 CC64=aarch64-linux-gnu-
+if ! check_command ${CC64}gcc; then
+	echo "CC64 not found"
+	exit 1
+fi
 
 ${CC32}gcc --version
 ${CC64}gcc --version
