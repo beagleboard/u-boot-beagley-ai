@@ -1,5 +1,6 @@
 before_script:
   - export PATH=/usr/lib/ccache:$PATH
+  - export CCACHE_NOCOMPRESS=1
   - echo "Acquire::http::Proxy \"http://192.168.1.10:3142\";" > /etc/apt/apt.conf.d/00aptproxy
   - apt-get update
   - apt-get dist-upgrade -yq
@@ -15,19 +16,19 @@ build-debian-14-arm64:
   cache:
     key: "$CI_PROJECT_NAME-debian-14-arm64"
     paths:
-      - ccache.tar.lz4
+      - ccache.tar.zst
   tags:
     - docker-aarch64-rpi4-ci
   stage: build
   script:
     - mkdir -p /root/.cache/ccache/ || true
-    - tar --use-compress-program=lz4 -xf ccache.tar.lz4 -C / || true
+    - tar --zstd -xf ccache.tar.zst -C / || true
     - ccache -M 1G
     - ccache -z
     - ./build_u-boot.sh
     - ccache -sv
-    - tar --use-compress-program=lz4 -cf ccache.tar.lz4 /root/.cache/ccache/
-    - du -sh ccache.tar.lz4
+    - tar --use-compress-program=zstd -cf ccache.tar.zst /root/.cache/ccache/
+    - du -sh ccache.tar.zst
 
 build-debian-13-arm64:
   image: robertcnelson/beagle-devscripts-kernel-debian-13-arm64:latest
@@ -35,19 +36,19 @@ build-debian-13-arm64:
   cache:
     key: "$CI_PROJECT_NAME-debian-13-arm64"
     paths:
-      - ccache.tar.lz4
+      - ccache.tar.zst
   tags:
     - docker-aarch64-rpi4-ci
   stage: build
   script:
     - mkdir -p /root/.cache/ccache/ || true
-    - tar --use-compress-program=lz4 -xf ccache.tar.lz4 -C / || true
+    - tar --zstd -xf ccache.tar.zst -C / || true
     - ccache -M 1G
     - ccache -z
     - ./build_u-boot.sh
     - ccache -sv
-    - tar --use-compress-program=lz4 -cf ccache.tar.lz4 /root/.cache/ccache/
-    - du -sh ccache.tar.lz4
+    - tar --use-compress-program=zstd -cf ccache.tar.zst /root/.cache/ccache/
+    - du -sh ccache.tar.zst
 
 pages:
   image: robertcnelson/beagle-devscripts-kernel-debian-12-arm64:latest
@@ -55,19 +56,19 @@ pages:
   cache:
     key: "$CI_PROJECT_NAME-debian-12-arm64"
     paths:
-      - ccache.tar.lz4
+      - ccache.tar.zst
   tags:
     - docker-aarch64-rpi4-ci
   stage: build
   script:
     - mkdir -p /root/.cache/ccache/ || true
-    - tar --use-compress-program=lz4 -xf ccache.tar.lz4 -C / || true
+    - tar --zstd -xf ccache.tar.zst -C / || true
     - ccache -M 1G
     - ccache -z
     - ./build_u-boot.sh
     - ccache -sv
-    - tar --use-compress-program=lz4 -cf ccache.tar.lz4 /root/.cache/ccache/
-    - du -sh ccache.tar.lz4
+    - tar --use-compress-program=zstd -cf ccache.tar.zst /root/.cache/ccache/
+    - du -sh ccache.tar.zst
     - apindex public
   artifacts:
     when: on_success

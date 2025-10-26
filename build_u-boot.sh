@@ -31,7 +31,7 @@ DIR=$PWD
 . version.sh
 
 echo "****************************************************"
-echo [${UBOOT}:${TRUSTED_FIRMWARE}:${OPTEE}:${TI_FIRMWARE}]
+echo [${UBOOT}:${TFA}:${OPTEE}:${TI_FIRMWARE}]
 echo "****************************************************"
 
 #rm -rf ./ti-linux-firmware/ || true
@@ -40,19 +40,19 @@ if [ ! -d ./ti-linux-firmware/ ] ; then
 		echo "git clone -b ${TI_FIRMWARE} http://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware.git"
 		git clone -b ${TI_FIRMWARE} http://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware.git --depth=1 ./ti-linux-firmware/
 	else
-		echo "git clone -b ${TI_FIRMWARE} https://github.com/beagleboard/ti-linux-firmware.git"
-		git clone -b ${TI_FIRMWARE} https://github.com/beagleboard/ti-linux-firmware.git --depth=1 ./ti-linux-firmware/
+		echo "git clone -b ${TI_FIRMWARE} https://github.com/TexasInstruments/ti-linux-firmware.git"
+		git clone -b ${TI_FIRMWARE} https://github.com/TexasInstruments/ti-linux-firmware.git --depth=1 ./ti-linux-firmware/
 	fi
 fi
 
 #rm -rf ./trusted-firmware-a/ || true
 if [ ! -d ./trusted-firmware-a/ ] ; then
 	if [ -f .gitlab-runner ] ; then
-		echo "git clone -b ${TRUSTED_FIRMWARE} http://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git"
-		git clone -b ${TRUSTED_FIRMWARE} http://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git --depth=1 ./trusted-firmware-a/
+		echo "git clone -b ${TFA} http://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git"
+		git clone -b ${TFA} http://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git --depth=1 ./trusted-firmware-a/
 	else
-		echo "git clone -b ${TRUSTED_FIRMWARE} https://github.com/TrustedFirmware-A/trusted-firmware-a.git"
-		git clone -b ${TRUSTED_FIRMWARE} https://github.com/TrustedFirmware-A/trusted-firmware-a.git --depth=1 ./trusted-firmware-a/
+		echo "git clone -b ${TFA} ${TFA_GIT}"
+		git clone -b ${TFA} ${TFA_GIT} --depth=1 ./trusted-firmware-a/
 	fi
 fi
 
@@ -67,15 +67,11 @@ if [ ! -d ./optee_os/ ] ; then
 	fi
 fi
 
-if [ -d ./u-boot/ ] ; then
-	rm -rf ./u-boot/
+#rm -rf ./u-boot/ || true
+if [ ! -d ./u-boot/ ] ; then
+	echo "git clone -b ${UBOOT} ${UBOOT_GIT} --depth=1 ./u-boot/"
+	git clone -b ${UBOOT} ${UBOOT_GIT} --depth=1 ./u-boot/
 fi
-
-global="https://github.com/beagleboard/u-boot.git"
-mirror="${global}"
-
-echo "git clone -b ${UBOOT} ${mirror} --depth=1 ./u-boot/"
-git clone -b ${UBOOT} ${mirror} --depth=1 ./u-boot/
 
 mkdir -p ${DIR}/public/
 
