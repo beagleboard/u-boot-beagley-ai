@@ -12,4 +12,4 @@ OPTEE="4.8.0"
 
 #https://github.com/beagleboard/u-boot.git
 UBOOT_GIT="${UBOOT_GIT:-https://github.com/beagleboard/u-boot.git}"
-UBOOT="${UBOOT:-v2025.10-Beagle}"
+UBOOT="${UBOOT:-v2026.01-Beagle}"
