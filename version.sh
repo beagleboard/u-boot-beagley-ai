@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #https://github.com/TexasInstruments/ti-linux-firmware.git
-TI_FIRMWARE="${TI_FIRMWARE:-11.01.17}"
+TI_FIRMWARE="${TI_FIRMWARE:-11.02.11}"
 
 #https://github.com/TrustedFirmware-A/trusted-firmware-a.git
 TFA_GIT="${TFA_GIT:-https://github.com/TrustedFirmware-A/trusted-firmware-a.git}"
-TFA="lts-v2.12.7"
+TFA="lts-v2.12.8"
 
 #https://github.com/OP-TEE/optee_os.git
 OPTEE="4.8.0"
