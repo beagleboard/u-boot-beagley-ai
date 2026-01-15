@@ -5,7 +5,7 @@ wfile=$(mktemp /tmp/builder.XXXXXXXXX)
 . version.sh
 
 echo "****************************************************"
-echo [${UBOOT}:${TRUSTED_FIRMWARE}:${OPTEE}:${TI_FIRMWARE}]
+echo [${UBOOT}:${TFA}:${OPTEE}:${TI_FIRMWARE}]
 echo "****************************************************"
 
 cp public/base.sh public/get_n_install.sh

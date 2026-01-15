@@ -27,14 +27,13 @@ build-debian-14-arm64:
     - df -h /dev/shm
     - ccache -M 1G
     - ccache -sv
-    - ccache --recompress=uncompressed
     - ccache -z
     - ./build_u-boot.sh
     - ccache -sv
     - df -h /dev/shm
-    - tar --use-compress-program='zstd -9' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
+    - tar --use-compress-program='zstd -6' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
 
-build-debian-13-arm64:
+pages:
   image: robertcnelson/beagle-devscripts-kernel-debian-13-arm64:latest
   # https://openbeagle.org/beagleboard/ci-docker-images
   cache:
@@ -49,34 +48,11 @@ build-debian-13-arm64:
     - df -h /dev/shm
     - ccache -M 1G
     - ccache -sv
-    - ccache --recompress=uncompressed
     - ccache -z
     - ./build_u-boot.sh
     - ccache -sv
     - df -h /dev/shm
-    - tar --use-compress-program='zstd -9' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
-
-pages:
-  image: robertcnelson/beagle-devscripts-kernel-debian-12-arm64:latest
-  # https://openbeagle.org/beagleboard/ci-docker-images
-  cache:
-    key: "$CI_PROJECT_NAME-debian-12-arm64"
-    paths:
-      - ccache.tar.zst
-  tags:
-    - docker-aarch64-rpi4-ci
-  stage: build
-  script:
-    - tar --zstd -xf ccache.tar.zst -C / || true
-    - df -h /dev/shm
-    - ccache -M 1G
-    - ccache -sv
-    - ccache --recompress=uncompressed
-    - ccache -z
-    - ./build_u-boot.sh
-    - ccache -sv
-    - df -h /dev/shm
-    - tar --use-compress-program='zstd -9' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
+    - tar --use-compress-program='zstd -6' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
     - apindex public
   artifacts:
     when: on_success
