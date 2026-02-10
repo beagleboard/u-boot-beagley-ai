@@ -5,7 +5,7 @@ TI_FIRMWARE="${TI_FIRMWARE:-11.02.11}"
 
 #https://github.com/TrustedFirmware-A/trusted-firmware-a.git
 TFA_GIT="${TFA_GIT:-https://github.com/TrustedFirmware-A/trusted-firmware-a.git}"
-TFA="${TFA:-v2.14.0}"
+TFA="${TFA:-lts-v2.14.1}"
 
 #https://github.com/OP-TEE/optee_os.git
 OPTEE="${OPTEE:-4.9.0}"
