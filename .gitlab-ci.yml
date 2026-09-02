@@ -1,3 +1,14 @@
+# SPDX-FileCopyrightText: Robert Nelson <robertcnelson@gmail.com>
+# SPDX-License-Identifier: MIT
+#
+# You can find the Docker source files at https://openbeagle.org/beagleboard/ci-docker-images
+
+variables:
+  TRANSFER_METER_FREQUENCY: "5s"
+  GIT_STRATEGY: "clone"
+  GIT_DEPTH: 1
+  REGISTRY_BASE: "registry.gfnd.rcn-ee.org:5000/ci"
+
 before_script:
   - export PATH=/usr/lib/ccache:$PATH
   - export CCACHE_DIR=/dev/shm/my-ccache-in-memory
@@ -13,8 +24,7 @@ before_script:
   - git config --global advice.detachedHead false
 
 build-debian-14-arm64:
-  image: robertcnelson/beagle-devscripts-kernel-debian-14-arm64:latest
-  # https://openbeagle.org/beagleboard/ci-docker-images
+  image: $REGISTRY_BASE/beagle-devscripts-kernel-debian-14-arm64:latest
   cache:
     key: "$CI_PROJECT_NAME-debian-14-arm64"
     paths:
@@ -34,7 +44,7 @@ build-debian-14-arm64:
     - tar --use-compress-program='zstd -6' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
 
 pages:
-  image: robertcnelson/beagle-devscripts-kernel-debian-13-arm64:latest
+  image: $REGISTRY_BASE/beagle-devscripts-kernel-debian-13-arm64:latest
   # https://openbeagle.org/beagleboard/ci-docker-images
   cache:
     key: "$CI_PROJECT_NAME-debian-13-arm64"
