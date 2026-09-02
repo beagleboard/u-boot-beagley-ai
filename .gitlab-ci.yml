@@ -12,7 +12,6 @@ variables:
 before_script:
   - export PATH=/usr/lib/ccache:$PATH
   - export CCACHE_DIR=/dev/shm/my-ccache-in-memory
-  - export CCACHE_NOCOMPRESS=1
   - df -h /dev/shm
   - echo "Acquire::http::Proxy \"http://192.168.1.10:3142\";" > /etc/apt/apt.conf.d/00aptproxy
   - apt-get update
@@ -33,19 +32,12 @@ build-debian-14-arm64:
     - docker-aarch64-rpi4-ci
   stage: build
   script:
-    - tar --zstd -xf ccache.tar.zst -C / || true
-    - df -h /dev/shm
-    - ccache -M 1G
-    - ccache -sv
-    - ccache -z
+    - ./tools/ci-setup-ccache.sh
     - ./build_u-boot.sh
-    - ccache -sv
-    - df -h /dev/shm
-    - tar --use-compress-program='zstd -6' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
+    - ./tools/ci-cleanup-ccache.sh
 
 pages:
   image: $REGISTRY_BASE/beagle-devscripts-kernel-debian-13-arm64:latest
-  # https://openbeagle.org/beagleboard/ci-docker-images
   cache:
     key: "$CI_PROJECT_NAME-debian-13-arm64"
     paths:
@@ -54,19 +46,13 @@ pages:
     - docker-aarch64-rpi4-ci
   stage: build
   script:
-    - tar --zstd -xf ccache.tar.zst -C / || true
-    - df -h /dev/shm
-    - ccache -M 1G
-    - ccache -sv
-    - ccache -z
+    - ./tools/ci-setup-ccache.sh
     - ./build_u-boot.sh
-    - ccache -sv
-    - df -h /dev/shm
-    - tar --use-compress-program='zstd -6' -cf ccache.tar.zst /dev/shm/my-ccache-in-memory
+    - ./tools/ci-cleanup-ccache.sh
     - apindex public
   artifacts:
     when: on_success
     paths:
       - public
   only:
-  - main
+    - main
