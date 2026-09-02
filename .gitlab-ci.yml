@@ -8,7 +8,7 @@ variables:
   GIT_STRATEGY: "clone"
   GIT_DEPTH: 1
   REGISTRY_BASE: "registry.gfnd.rcn-ee.org:5000/ci"
-  PROD_DEBIAN_VER: "13"
+  PROD_DISTRO_VER: "debian-13"
 
 before_script:
   - export PATH=/usr/lib/ccache:$PATH
@@ -34,22 +34,22 @@ build-debian-arm64:
   extends: .build_template
   parallel:
     matrix:
-      - DEBIAN_VER: ["14"]
-  image: $REGISTRY_BASE/beagle-devscripts-kernel-debian-${DEBIAN_VER}-arm64:latest
+      - DISTRO_VER: ["debian-14", "ubuntu-24.04"]
+  image: $REGISTRY_BASE/beagle-devscripts-kernel-${DISTRO_VER}-arm64:latest
   variables:
-    TARGET_LOCK_NAME: "lock-debian-$DEBIAN_VER"
+    TARGET_LOCK_NAME: "lock-${DISTRO_VER}"
   cache:
-    key: "$CI_PROJECT_NAME-debian-${DEBIAN_VER}-arm64"
+    key: "$CI_PROJECT_NAME-${DISTRO_VER}-arm64"
     paths:
       - ccache.tar.zst
 
 pages:
   extends: .build_template
-  image: $REGISTRY_BASE/beagle-devscripts-kernel-debian-${PROD_DEBIAN_VER}-arm64:latest
+  image: $REGISTRY_BASE/beagle-devscripts-kernel-${PROD_DISTRO_VER}-arm64:latest
   variables:
-    TARGET_LOCK_NAME: "lock-debian-$PROD_DEBIAN_VER"
+    TARGET_LOCK_NAME: "lock-${PROD_DISTRO_VER}"
   cache:
-    key: "$CI_PROJECT_NAME-debian-${PROD_DEBIAN_VER}-arm64"
+    key: "$CI_PROJECT_NAME-${PROD_DISTRO_VER}-arm64"
     paths:
       - ccache.tar.zst
   script:
