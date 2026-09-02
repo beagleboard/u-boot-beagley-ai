@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# SPDX-FileCopyrightText: Robert Nelson <robertcnelson@gmail.com>
-# SPDX-License-Identifier: MIT
+. version.sh
 
-git pull --no-edit https://github.com/beagleboard/u-boot-beagley-ai.git main
-git pull --no-edit https://gitlab.com/beagle-pkgs/u-boot-beagley-ai.git main
+git pull --no-edit https://github.com/beagleboard/${BUILD_REPO}.git main
+git pull --no-edit https://gitlab.com/beagle-pkgs/${BUILD_REPO}.git main

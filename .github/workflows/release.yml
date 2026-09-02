@@ -69,3 +69,4 @@ jobs:
             public/tiboot3.bin
             public/tispl.bin
             public/u-boot.img
+            public/bootfs.tar.xz
