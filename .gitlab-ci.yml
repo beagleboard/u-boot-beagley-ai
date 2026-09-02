@@ -8,6 +8,7 @@ variables:
   GIT_STRATEGY: "clone"
   GIT_DEPTH: 1
   REGISTRY_BASE: "registry.gfnd.rcn-ee.org:5000/ci"
+  PROD_DEBIAN_VER: "13"
 
 before_script:
   - export PATH=/usr/lib/ccache:$PATH
@@ -18,35 +19,41 @@ before_script:
   - df -h /dev/shm
   - touch .gitlab-runner
 
-build-debian-14-arm64:
-  image: $REGISTRY_BASE/beagle-devscripts-kernel-debian-14-arm64:latest
-  cache:
-    key: "$CI_PROJECT_NAME-debian-14-arm64"
-    paths:
-      - ccache.tar.zst
+.build_template:
+  stage: build
   tags:
     - docker-aarch64-rpi4-ci
-  stage: build
+  resource_group: $TARGET_LOCK_NAME
   script:
     - ./tools/ci-debian-update.sh
     - ./tools/ci-setup-ccache.sh
     - ./build_u-boot.sh
     - ./tools/ci-cleanup-ccache.sh
 
-pages:
-  image: $REGISTRY_BASE/beagle-devscripts-kernel-debian-13-arm64:latest
+build-debian-arm64:
+  extends: .build_template
+  parallel:
+    matrix:
+      - DEBIAN_VER: ["14"]
+  image: $REGISTRY_BASE/beagle-devscripts-kernel-debian-${DEBIAN_VER}-arm64:latest
+  variables:
+    TARGET_LOCK_NAME: "lock-debian-$DEBIAN_VER"
   cache:
-    key: "$CI_PROJECT_NAME-debian-13-arm64"
+    key: "$CI_PROJECT_NAME-debian-${DEBIAN_VER}-arm64"
     paths:
       - ccache.tar.zst
-  tags:
-    - docker-aarch64-rpi4-ci
-  stage: build
+
+pages:
+  extends: .build_template
+  image: $REGISTRY_BASE/beagle-devscripts-kernel-debian-${PROD_DEBIAN_VER}-arm64:latest
+  variables:
+    TARGET_LOCK_NAME: "lock-debian-$PROD_DEBIAN_VER"
+  cache:
+    key: "$CI_PROJECT_NAME-debian-${PROD_DEBIAN_VER}-arm64"
+    paths:
+      - ccache.tar.zst
   script:
-    - ./tools/ci-debian-update.sh
-    - ./tools/ci-setup-ccache.sh
-    - ./build_u-boot.sh
-    - ./tools/ci-cleanup-ccache.sh
+    - !reference [.build_template, script]
     - apindex public
   artifacts:
     when: on_success
