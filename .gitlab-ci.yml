@@ -12,15 +12,11 @@ variables:
 before_script:
   - export PATH=/usr/lib/ccache:$PATH
   - export CCACHE_DIR=/dev/shm/my-ccache-in-memory
-  - df -h /dev/shm
-  - echo "Acquire::http::Proxy \"http://192.168.1.10:3142\";" > /etc/apt/apt.conf.d/00aptproxy
-  - apt-get update
-  - apt-get dist-upgrade -yq
-  - apt-get install -yq ccache device-tree-compiler gcc-arm-linux-gnueabihf libgnutls28-dev python3-cryptography python3-dev python3-jsonschema python3-pycryptodome python3-pyelftools python3-setuptools python3-yaml swig uuid-dev yamllint
-  - touch .gitlab-runner
   - git config --global user.email "$GITLAB_USER_EMAIL"
   - git config --global user.name "$GITLAB_USER_NAME"
   - git config --global advice.detachedHead false
+  - df -h /dev/shm
+  - touch .gitlab-runner
 
 build-debian-14-arm64:
   image: $REGISTRY_BASE/beagle-devscripts-kernel-debian-14-arm64:latest
@@ -32,6 +28,7 @@ build-debian-14-arm64:
     - docker-aarch64-rpi4-ci
   stage: build
   script:
+    - ./tools/ci-debian-update.sh
     - ./tools/ci-setup-ccache.sh
     - ./build_u-boot.sh
     - ./tools/ci-cleanup-ccache.sh
@@ -46,6 +43,7 @@ pages:
     - docker-aarch64-rpi4-ci
   stage: build
   script:
+    - ./tools/ci-debian-update.sh
     - ./tools/ci-setup-ccache.sh
     - ./build_u-boot.sh
     - ./tools/ci-cleanup-ccache.sh
