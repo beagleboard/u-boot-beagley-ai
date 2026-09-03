@@ -105,8 +105,9 @@ fi
 
 # U-Boot
 if [ ! -d ./u-boot/ ] ; then
-	echo "Cloning U-Boot from: ${UBOOT_GIT}"
-	git clone -b ${UBOOT} ${UBOOT_GIT} --depth=1 ./u-boot/
+	URL=$(get_git_url "/BeagleBoard.org/u-boot.git" "${UBOOT_GIT}")
+	echo "Cloning U-Boot from: ${URL}"
+	git clone -b ${UBOOT} ${URL} --depth=1 ./u-boot/
 fi
 echo "****************************************************"
 

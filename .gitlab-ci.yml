@@ -22,7 +22,7 @@ before_script:
 .build_template:
   stage: build
   tags:
-    - docker-aarch64-rpi4-ci
+    - docker-aarch64-ci
   resource_group: $TARGET_LOCK_NAME
   script:
     - ./tools/ci-debian-update.sh
