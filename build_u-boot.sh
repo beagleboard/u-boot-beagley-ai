@@ -86,6 +86,7 @@ UBOOT_CFG_CORTEXA="am67a_beagley_ai_a53_defconfig"
 
 echo "make -C ./trusted-firmware-a/ -j${JOBS} CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
 make -C ./trusted-firmware-a/ -j${JOBS} CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
+echo "****************************************************"
 
 if [ ! -f ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ] ; then
 	echo "Failure in ./trusted-firmware-a/"
@@ -94,9 +95,11 @@ if [ ! -f ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ] ; then
 else
 	cp -v ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ${DIR}/public/
 fi
+echo "****************************************************"
 
 echo "make -C ./optee_os/ -j${JOBS} O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all"
 make -C ./optee_os/ -j${JOBS} O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all
+echo "****************************************************"
 
 if [ ! -f ./optee/core/tee-pager_v2.bin ] ; then
 	echo "Failure in ${OPTEE_DIR}"
@@ -105,14 +108,17 @@ if [ ! -f ./optee/core/tee-pager_v2.bin ] ; then
 else
 	cp -v ./optee/core/tee-pager_v2.bin ${DIR}/public/
 fi
+echo "****************************************************"
 
 rm -rf ${DIR}/optee/ || true
 
 echo "make -C ./u-boot/ O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
 make -C ./u-boot/ O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
+echo "****************************************************"
 
 echo "make -C ./u-boot/ -j${JOBS} O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
 make -C ./u-boot/ -j${JOBS} O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+echo "****************************************************"
 
 if [ ! -f ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ] ; then
 	echo "Failure in u-boot CORTEXR build of [$UBOOT_CFG_CORTEXR]"
@@ -124,6 +130,7 @@ else
 		cp -v ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ${DIR}/public/sysfw.itb
 	fi
 fi
+echo "****************************************************"
 
 rm -rf ${DIR}/CORTEXR/ || true
 
@@ -131,9 +138,11 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 	if [ -f ${DIR}/public/tee-pager_v2.bin ] ; then
 		echo "make -C ./u-boot/ O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA"
 		make -C ./u-boot/ O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA
+		echo "****************************************************"
 
 		echo "make -C ./u-boot/ -j${JOBS} O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
 		make -C ./u-boot/ -j${JOBS} O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+		echo "****************************************************"
 
 		if [ ! -f ${DIR}/CORTEXA/tispl.bin${SIGNED} ] ; then
 			echo "Failure in u-boot CORTEXA build of [$UBOOT_CFG_CORTEXA]"
@@ -151,6 +160,7 @@ else
 	echo "Missing ${DIR}/public/bl31.bin"
 	exit 2
 fi
+echo "****************************************************"
 
 rm -rf ${DIR}/CORTEXA/ || true
 
