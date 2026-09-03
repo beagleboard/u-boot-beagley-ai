@@ -269,7 +269,6 @@ if [ -f "${DIR}/public/bl31.bin" ] && [ -f "${DIR}/public/tee-pager_v2.bin" ]; t
 		ls -lha "${DIR}/${build_dir}/"
 		exit 2
 	fi
-	rm -rf "${DIR}/${build_dir}/"
 else
 	echo "Error: Missing required dependencies in public/ (bl31.bin or tee-pager_v2.bin)"
 	exit 2
