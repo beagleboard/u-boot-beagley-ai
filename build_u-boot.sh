@@ -127,6 +127,8 @@ echo "Building TFA (Target Board: ${TFA_BOARD})..."
 
 if ! make -C ./trusted-firmware-a/ -j${JOBS} \
     CROSS_COMPILE=$CC64 \
+    CFLAGS= \
+    LDFLAGS= \
     ARCH=aarch64 \
     PLAT=k3 \
     SPD=opteed \
@@ -164,6 +166,8 @@ if ! make -C ./optee_os/ -j${JOBS} \
     O=../optee \
     CROSS_COMPILE=$CC32 \
     CROSS_COMPILE64=$CC64 \
+    CFLAGS= \
+    LDFLAGS= \
     CFG_ARM64_core=y \
     PLATFORM=${OPTEE_PLATFORM} \
     $OPTEE_EXTRA_ARGS all; then
