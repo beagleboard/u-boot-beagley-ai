@@ -149,13 +149,12 @@ if [ -f "$TFA_OUTPUT" ]; then
 	SIZE_KB=$((SIZE_BYTES / 1024))
 	echo "TFA Output found: $TFA_OUTPUT (${SIZE_KB} KB)"
 	cp -v "$TFA_OUTPUT" "${DIR}/public/"
+	report_and_compare "$TFA_OUTPUT" "TFA_BL31"
 else
 	echo "Error: bl31.bin not found after TFA build."
 	ls -lha ${DIR}/trusted-firmware-a/
 	exit 2
 fi
-
-report_and_compare "$TFA_OUTPUT" "TFA_BL31"
 
 rm -rf ${DIR}/trusted-firmware-a || true
 
@@ -186,25 +185,23 @@ if [ -f "$TEE_PAGER" ]; then
 	SIZE_KB=$((SIZE_BYTES / 1024))
 	echo "OP-TEE Pager found: $TEE_PAGER (${SIZE_KB} KB)"
 	cp -v "$TEE_PAGER" "${DIR}/public/"
+	report_and_compare "$TEE_PAGER" "OPTEE_PAGER"
 else
 	echo "Error: tee-pager_v2.bin not found after OP-TEE build."
 	ls -lha ${DIR}/optee/
 	exit 2
 fi
 
-report_and_compare "$TEE_PAGER" "OPTEE_PAGER"
-
 rm -rf ${DIR}/optee/ || true
 
 echo "****************************************************"
-
 echo "Building U-Boot CORTEX-R ($UBOOT_CFG_CORTEXR)..."
 
 make -C ./u-boot/ O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
 
 if ! make -C ./u-boot/ -j${JOBS} O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/; then
-    echo "Error: U-Boot CORTEX-R build failed."
-    exit 2
+	echo "Error: U-Boot CORTEX-R build failed."
+	exit 2
 fi
 
 R_BIN="${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin"
@@ -215,31 +212,34 @@ if [ -f "$R_BIN" ]; then
 	R_SIZE_KB=$((R_SIZE_BYTES / 1024))
 	echo "Cortex-R Bin found: $R_BIN (${R_SIZE_KB} KB)"
 	cp -v "$R_BIN" "${DIR}/public/tiboot3.bin"
+	report_and_compare "$R_BIN" "CORTEXR_BIN"
 
 	if [ -f "$R_ITB" ]; then
 		ITB_SIZE_BYTES=$(stat -c%s "$R_ITB")
 		ITB_SIZE_KB=$((ITB_SIZE_BYTES / 1024))
 		echo "Cortex-R ITB found: $R_ITB (${ITB_SIZE_KB} KB)"
 		cp -v "$R_ITB" "${DIR}/public/sysfw.itb"
+		report_and_compare "$R_ITB" "CORTEXR_ITB"
 	fi
 else
 	echo "Error: Required CORTEX-R binary $R_BIN not found."
 	exit 2
 fi
 
-report_and_compare "$R_BIN" "CORTEXR_BIN"
-if [ -f "$R_ITB" ]; then report_and_compare "$R_ITB" "CORTEXR_ITB"; fi
-
 rm -rf ${DIR}/CORTEXR/ || true
 
 if [ -f ${DIR}/public/bl31.bin ] ; then
 	if [ -f ${DIR}/public/tee-pager_v2.bin ] ; then
-		echo "make -C ./u-boot/ O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA"
-		make -C ./u-boot/ O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA
 		echo "****************************************************"
+		echo "Building U-Boot CORTEX-A ($UBOOT_CFG_CORTEXA)..."
 
-		echo "make -C ./u-boot/ -j${JOBS} O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-		make -C ./u-boot/ -j${JOBS} O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+		make -C ./u-boot/ O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA
+
+		make -C ./u-boot/ -j${JOBS} O=../CORTEXA CROSS_COMPILE=$CC64 \
+            BL31="${DIR}/public/bl31.bin" \
+            TEE="${DIR}/public/tee-pager_v2.bin" \
+            BINMAN_INDIRS="${DIR}/ti-linux-firmware/"
+
 		echo "****************************************************"
 
 		if [ ! -f ${DIR}/CORTEXA/tispl.bin${SIGNED} ] ; then
@@ -249,6 +249,8 @@ if [ -f ${DIR}/public/bl31.bin ] ; then
 		else
 			cp -v ${DIR}/CORTEXA/tispl.bin${SIGNED} ${DIR}/public/tispl.bin || true
 			cp -v ${DIR}/CORTEXA/u-boot.img${SIGNED} ${DIR}/public/u-boot.img || true
+			report_and_compare "${DIR}/CORTEXA/tispl.bin${SIGNED}" "CORTEXA_TISPL"
+			report_and_compare "${DIR}/CORTEXA/u-boot.img${SIGNED}" "CORTEXA_UBIMG"
 		fi
 	else
 		echo "Missing ${DIR}/public/tee-pager_v2.bin"
@@ -266,7 +268,4 @@ if [ -f .new_sizes.txt ]; then
 	mv .new_sizes.txt .last_build_sizes.txt
 fi
 
-#cd ./u-boot/
-#git bisect log
-#cd ${DIR}/
 #
