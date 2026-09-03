@@ -70,6 +70,7 @@ if [ ! -d ./u-boot/ ] ; then
 	echo "Cloning U-Boot from: ${UBOOT_GIT}"
 	git clone -b ${UBOOT} ${UBOOT_GIT} --depth=1 ./u-boot/
 fi
+echo "****************************************************"
 
 mkdir -p ${DIR}/public/
 
