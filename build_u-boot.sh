@@ -203,34 +203,37 @@ rm -rf "${DIR}/optee/"
 
 # --- U-Boot Cortex-R Build ---
 
-log_sep
-echo "Building U-Boot CORTEX-R ($UBOOT_CFG_CORTEXR)..."
-make -C ./u-boot/ O=../CORTEXR CROSS_COMPILE="${CC32}" "${UBOOT_CFG_CORTEXR}"
+build_label="Cortex-R"
+build_dir="CORTEXR"
 
-if ! make -C ./u-boot/ -j"${JOBS}" O=../CORTEXR CROSS_COMPILE="${CC32}" BINMAN_INDIRS="${DIR}/ti-linux-firmware/"; then
+log_sep
+echo "Building U-Boot ${build_label} ($UBOOT_CFG_CORTEXR)..."
+make -C ./u-boot/ O=../${build_dir} CROSS_COMPILE="${CC32}" "${UBOOT_CFG_CORTEXR}"
+
+if ! make -C ./u-boot/ -j"${JOBS}" O=../${build_dir} CROSS_COMPILE="${CC32}" BINMAN_INDIRS="${DIR}/ti-linux-firmware/"; then
 	echo "Error: U-Boot CORTEX-R build failed."
 	exit 2
 fi
 
-R_BIN="${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin"
-R_ITB="${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb"
+TIBOOT3_BIN="${DIR}/${build_dir}/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin"
+SYSFW_ITB="${DIR}/${build_dir}/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb"
 
-if [ -f "$R_BIN" ]; then
-	echo "Cortex-R Bin found: $R_BIN ($(( $(stat -c%s "$R_BIN") / 1024 )) KB)"
-	cp -v "$R_BIN" "${DIR}/public/tiboot3.bin"
-	report_and_compare "$R_BIN" "CORTEXR_BIN"
+if [ -f "$TIBOOT3_BIN" ]; then
+	echo "${build_label} Bin found: $TIBOOT3_BIN ($(( $(stat -c%s "$TIBOOT3_BIN") / 1024 )) KB)"
+	cp -v "$TIBOOT3_BIN" "${DIR}/public/tiboot3.bin"
+	report_and_compare "$TIBOOT3_BIN" "TIBOOT3_BIN"
 
-	if [ -f "$R_ITB" ]; then
-		echo "Cortex-R ITB found: $R_ITB ($(( $(stat -c%s "$R_ITB") / 1024 )) KB)"
-		cp -v "$R_ITB" "${DIR}/public/sysfw.itb"
-		report_and_compare "$R_ITB" "CORTEXR_ITB"
+	if [ -f "$SYSFW_ITB" ]; then
+		echo "${build_label} ITB found: $SYSFW_ITB ($(( $(stat -c%s "$SYSFW_ITB") / 1024 )) KB)"
+		cp -v "$SYSFW_ITB" "${DIR}/public/sysfw.itb"
+		report_and_compare "$SYSFW_ITB" "SYSFW_ITB"
 	fi
 else
-	echo "Error: Required CORTEX-R binary $R_BIN not found."
+	echo "Error: Required ${build_label} binary $SYSFW_ITB not found."
 	exit 2
 fi
 
-rm -rf "${DIR}/CORTEXR/"
+rm -rf "${DIR}/${build_dir}/"
 
 # --- U-Boot Cortex-A Build ---
 
