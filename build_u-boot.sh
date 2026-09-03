@@ -6,6 +6,16 @@ check_command() {
     command -v -- "$1" >/dev/null 2>&1
 }
 
+get_git_url() {
+	local mirror_path=$1
+	local github_url=$2
+	if [ -f .gitlab-runner ]; then
+		echo "https://forgejo.gfnd.rcn-ee.org:3000${mirror_path}"
+	else
+		echo "${github_url}"
+	fi
+}
+
 # Check for debian compiler
 if check_command arm-linux-gnueabihf-gcc; then
 	CC32=arm-linux-gnueabihf-
@@ -34,42 +44,30 @@ echo "****************************************************"
 echo [${UBOOT}:${TFA}:${OPTEE}:${TI_FIRMWARE}]
 echo "****************************************************"
 
-#rm -rf ./ti-linux-firmware/ || true
+# TI Firmware
 if [ ! -d ./ti-linux-firmware/ ] ; then
-	if [ -f .gitlab-runner ] ; then
-		echo "git clone -b ${TI_FIRMWARE} https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware.git"
-		git clone -b ${TI_FIRMWARE} https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware.git --depth=1 ./ti-linux-firmware/
-	else
-		echo "git clone -b ${TI_FIRMWARE} ${TI_FIRMWARE_GIT}"
-		git clone -b ${TI_FIRMWARE} ${TI_FIRMWARE_GIT} --depth=1 ./ti-linux-firmware/
-	fi
+	URL=$(get_git_url "/TexasInstruments/ti-linux-firmware.git" "${TI_FIRMWARE_GIT}")
+	echo "Cloning TI Firmware from: ${URL}"
+	git clone -b ${TI_FIRMWARE} ${URL} --depth=1 ./ti-linux-firmware/
 fi
 
-#rm -rf ./trusted-firmware-a/ || true
+# TFA
 if [ ! -d ./trusted-firmware-a/ ] ; then
-	if [ -f .gitlab-runner ] ; then
-		echo "git clone -b ${TFA} https://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git"
-		git clone -b ${TFA} https://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a.git --depth=1 ./trusted-firmware-a/
-	else
-		echo "git clone -b ${TFA} ${TFA_GIT}"
-		git clone -b ${TFA} ${TFA_GIT} --depth=1 ./trusted-firmware-a/
-	fi
+	URL=$(get_git_url "/mirror/trusted-firmware-a.git" "${TFA_GIT}")
+	echo "Cloning TFA from: ${URL}"
+	git clone -b ${TFA} ${URL} --depth=1 ./trusted-firmware-a/
 fi
 
-#rm -rf ./optee_os/ || true
+# OP-TEE
 if [ ! -d ./optee_os/ ] ; then
-	if [ -f .gitlab-runner ] ; then
-		echo "git clone -b ${OPTEE} https://forgejo.gfnd.rcn-ee.org:3000/mirror/optee_os.git"
-		git clone -b ${OPTEE} https://forgejo.gfnd.rcn-ee.org:3000/mirror/optee_os.git --depth=1 ./optee_os/
-	else
-		echo "git clone -b ${OPTEE} ${OPTEE_GIT}"
-		git clone -b ${OPTEE} ${OPTEE_GIT} --depth=1 ./optee_os/
-	fi
+	URL=$(get_git_url "/mirror/optee_os.git" "${OPTEE_GIT}")
+	echo "Cloning OP-TEE from: ${URL}"
+	git clone -b ${OPTEE} ${URL} --depth=1 ./optee_os/
 fi
 
-#rm -rf ./u-boot/ || true
+# U-Boot
 if [ ! -d ./u-boot/ ] ; then
-	echo "git clone -b ${UBOOT} ${UBOOT_GIT} --depth=1 ./u-boot/"
+	echo "Cloning U-Boot from: ${UBOOT_GIT}"
 	git clone -b ${UBOOT} ${UBOOT_GIT} --depth=1 ./u-boot/
 fi
 
