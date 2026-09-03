@@ -27,7 +27,7 @@ ${CC32}gcc --version
 ${CC64}gcc --version
 
 DIR=$PWD
-
+JOBS=$(nproc 2>/dev/null || echo 4)
 . version.sh
 
 echo "****************************************************"
@@ -86,8 +86,8 @@ OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
 UBOOT_CFG_CORTEXR="am67a_beagley_ai_r5_defconfig"
 UBOOT_CFG_CORTEXA="am67a_beagley_ai_a53_defconfig"
 
-echo "make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
-make -C ./trusted-firmware-a/ -j4 CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
+echo "make -C ./trusted-firmware-a/ -j${JOBS} CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
+make -C ./trusted-firmware-a/ -j${JOBS} CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
 
 if [ ! -f ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ] ; then
 	echo "Failure in ./trusted-firmware-a/"
@@ -97,8 +97,8 @@ else
 	cp -v ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ${DIR}/public/
 fi
 
-echo "make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all"
-make -C ./optee_os/ -j4 O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all
+echo "make -C ./optee_os/ -j${JOBS} O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all"
+make -C ./optee_os/ -j${JOBS} O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all
 
 if [ ! -f ./optee/core/tee-pager_v2.bin ] ; then
 	echo "Failure in ${OPTEE_DIR}"
@@ -110,11 +110,11 @@ fi
 
 rm -rf ${DIR}/optee/ || true
 
-echo "make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
-make -C ./u-boot/ -j1 O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
+echo "make -C ./u-boot/ O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
+make -C ./u-boot/ O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
 
-echo "make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-make -C ./u-boot/ -j4 O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+echo "make -C ./u-boot/ -j${JOBS} O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
+make -C ./u-boot/ -j${JOBS} O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/
 
 if [ ! -f ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ] ; then
 	echo "Failure in u-boot CORTEXR build of [$UBOOT_CFG_CORTEXR]"
@@ -131,11 +131,11 @@ rm -rf ${DIR}/CORTEXR/ || true
 
 if [ -f ${DIR}/public/bl31.bin ] ; then
 	if [ -f ${DIR}/public/tee-pager_v2.bin ] ; then
-		echo "make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA"
-		make -C ./u-boot/ -j1 O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA
+		echo "make -C ./u-boot/ O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA"
+		make -C ./u-boot/ O=../CORTEXA CROSS_COMPILE=$CC64 $UBOOT_CFG_CORTEXA
 
-		echo "make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-		make -C ./u-boot/ -j4 O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
+		echo "make -C ./u-boot/ -j${JOBS} O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/${DEVICE}/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
+		make -C ./u-boot/ -j${JOBS} O=../CORTEXA CROSS_COMPILE=$CC64 BL31=${DIR}/public/bl31.bin TEE=${DIR}/public/tee-pager_v2.bin BINMAN_INDIRS=${DIR}/ti-linux-firmware/
 
 		if [ ! -f ${DIR}/CORTEXA/tispl.bin${SIGNED} ] ; then
 			echo "Failure in u-boot CORTEXA build of [$UBOOT_CFG_CORTEXA]"
