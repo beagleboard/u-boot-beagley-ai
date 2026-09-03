@@ -47,6 +47,7 @@ build-debian-arm64:
     key: "$CI_PROJECT_NAME-${DISTRO_VER}-arm64"
     paths:
       - ccache.tar.zst
+      - .last_build_sizes.txt
 
 pages:
   extends: .build_template
@@ -57,12 +58,13 @@ pages:
     key: "$CI_PROJECT_NAME-${PROD_DISTRO_VER}-arm64"
     paths:
       - ccache.tar.zst
+      - .last_build_sizes.txt
   script:
     - !reference [.build_template, script]
     - apindex public
   artifacts:
     when: on_success
     paths:
-      - public
+      - public/
   only:
     - main

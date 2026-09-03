@@ -16,6 +16,37 @@ get_git_url() {
 	fi
 }
 
+report_and_compare() {
+	local file_path=$1
+	local label=$2
+	local size_file=".last_build_sizes.txt"
+
+	if [ -f "$file_path" ]; then
+		local current_bytes=$(stat -c%s "$file_path")
+		local current_kb=$((current_bytes / 1024))
+		if [ -f "$size_file" ]; then
+			local prev_line=$(grep "^${label}:" "$size_file")
+			if [ -n "$prev_line" ]; then
+				local prev_bytes=$(echo "$prev_line" | cut -d':' -f2)
+				local prev_kb=$((prev_bytes / 1024))
+				local diff=$((current_bytes - prev_bytes))
+				if [ $diff -gt 0 ]; then
+					echo "[SIZE CHANGE] $label: ${current_kb}KB (Increased by $((diff/1024))KB)"
+				elif [ $diff -lt 0 ]; then
+					echo "[SIZE CHANGE] $label: ${current_kb}KB (Decreased by $(( (diff*-1)/1024 ))KB)"
+				else
+					echo "[SIZE MATCH]  $label: ${current_kb}KB (No change)"
+				fi
+			else
+				echo "[NEW SIZE]    $label: ${current_kb}KB"
+			fi
+		else
+			echo "[FIRST RUN]   $label: ${current_kb}KB"
+		fi
+		echo "${label}:${current_bytes}" >> .new_sizes.txt
+	fi
+}
+
 # Check for debian compiler
 if check_command arm-linux-gnueabihf-gcc; then
 	CC32=arm-linux-gnueabihf-
@@ -39,6 +70,13 @@ ${CC64}gcc --version
 DIR=$PWD
 JOBS=$(nproc 2>/dev/null || echo 4)
 . version.sh
+
+if [ -f ".last_build_sizes.txt" ]; then
+	echo "Cache restored: Found previous build sizes."
+else
+	echo "No cache found: This is likely a fresh build or cache was cleared."
+	touch .last_build_sizes.txt
+fi
 
 echo "****************************************************"
 echo [${UBOOT}:${TFA}:${OPTEE}:${TI_FIRMWARE}]
@@ -104,12 +142,17 @@ echo "****************************************************"
 TFA_OUTPUT="./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin"
 
 if [ -f "$TFA_OUTPUT" ]; then
+	SIZE_BYTES=$(stat -c%s "$TFA_OUTPUT")
+	SIZE_KB=$((SIZE_BYTES / 1024))
+	echo "TFA Output found: $TFA_OUTPUT (${SIZE_KB} KB)"
 	cp -v "$TFA_OUTPUT" "${DIR}/public/"
 else
 	echo "Error: bl31.bin not found after TFA build."
 	ls -lha ${DIR}/trusted-firmware-a/
 	exit 2
 fi
+
+report_and_compare "$TFA_OUTPUT" "TFA_BL31"
 
 rm -rf ${DIR}/trusted-firmware-a || true
 
@@ -134,12 +177,17 @@ echo "****************************************************"
 TEE_PAGER="./optee/core/tee-pager_v2.bin"
 
 if [ -f "$TEE_PAGER" ]; then
+	SIZE_BYTES=$(stat -c%s "$TEE_PAGER")
+	SIZE_KB=$((SIZE_BYTES / 1024))
+	echo "OP-TEE Pager found: $TEE_PAGER (${SIZE_KB} KB)"
 	cp -v "$TEE_PAGER" "${DIR}/public/"
 else
 	echo "Error: tee-pager_v2.bin not found after OP-TEE build."
 	ls -lha ${DIR}/optee/
 	exit 2
 fi
+
+report_and_compare "$TEE_PAGER" "OPTEE_PAGER"
 
 rm -rf ${DIR}/optee/ || true
 
@@ -158,12 +206,24 @@ R_BIN="${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin"
 R_ITB="${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb"
 
 if [ -f "$R_BIN" ]; then
-    cp -v "$R_BIN" "${DIR}/public/tiboot3.bin"
-    [ -f "$R_ITB" ] && cp -v "$R_ITB" "${DIR}/public/sysfw.itb"
+	R_SIZE_BYTES=$(stat -c%s "$R_BIN")
+	R_SIZE_KB=$((R_SIZE_BYTES / 1024))
+	echo "Cortex-R Bin found: $R_BIN (${R_SIZE_KB} KB)"
+	cp -v "$R_BIN" "${DIR}/public/tiboot3.bin"
+
+	if [ -f "$R_ITB" ]; then
+		ITB_SIZE_BYTES=$(stat -c%s "$R_ITB")
+		ITB_SIZE_KB=$((ITB_SIZE_BYTES / 1024))
+		echo "Cortex-R ITB found: $R_ITB (${ITB_SIZE_KB} KB)"
+		cp -v "$R_ITB" "${DIR}/public/sysfw.itb"
+	fi
 else
-    echo "Error: Required CORTEX-R binary $R_BIN not found."
-    exit 2
+	echo "Error: Required CORTEX-R binary $R_BIN not found."
+	exit 2
 fi
+
+report_and_compare "$R_BIN" "CORTEXR_BIN"
+if [ -f "$R_ITB" ]; then report_and_compare "$R_ITB" "CORTEXR_ITB"; fi
 
 rm -rf ${DIR}/CORTEXR/ || true
 
@@ -196,6 +256,10 @@ fi
 echo "****************************************************"
 
 rm -rf ${DIR}/CORTEXA/ || true
+
+if [ -f .new_sizes.txt ]; then
+	mv .new_sizes.txt .last_build_sizes.txt
+fi
 
 #cd ./u-boot/
 #git bisect log
