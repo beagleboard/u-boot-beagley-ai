@@ -85,16 +85,30 @@ OPTEE_EXTRA_ARGS="CFG_WITH_SOFTWARE_PRNG=y"
 UBOOT_CFG_CORTEXR="am67a_beagley_ai_r5_defconfig"
 UBOOT_CFG_CORTEXA="am67a_beagley_ai_a53_defconfig"
 
-echo "make -C ./trusted-firmware-a/ -j${JOBS} CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all"
-make -C ./trusted-firmware-a/ -j${JOBS} CROSS_COMPILE=$CC64 CFLAGS= LDFLAGS= ARCH=aarch64 PLAT=k3 SPD=opteed $TFA_EXTRA_ARGS TARGET_BOARD=${TFA_BOARD} all
+echo "Building TFA (Target Board: ${TFA_BOARD})..."
+
+if ! make -C ./trusted-firmware-a/ -j${JOBS} \
+    CROSS_COMPILE=$CC64 \
+    ARCH=aarch64 \
+    PLAT=k3 \
+    SPD=opteed \
+    TARGET_BOARD=${TFA_BOARD} \
+    $TFA_EXTRA_ARGS all; then
+    echo "Error: TFA build failed."
+    ls -lha ${DIR}/trusted-firmware-a/
+    exit 2
+fi
+
 echo "****************************************************"
 
-if [ ! -f ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ] ; then
-	echo "Failure in ./trusted-firmware-a/"
-	ls -lha ${DIR}/trusted-firmware-a/
-	exit 2
+TFA_OUTPUT="./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin"
+
+if [ -f "$TFA_OUTPUT" ]; then
+    cp -v "$TFA_OUTPUT" "${DIR}/public/"
 else
-	cp -v ./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin ${DIR}/public/
+    echo "Error: bl31.bin not found after TFA build."
+    ls -lha ${DIR}/trusted-firmware-a/
+    exit 2
 fi
 echo "****************************************************"
 
