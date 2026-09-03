@@ -230,7 +230,7 @@ if [ -f "$TIBOOT3_BIN" ]; then
 		report_and_compare "$SYSFW_ITB" "SYSFW_ITB"
 	fi
 else
-	echo "Error: Required ${build_label} binary $SYSFW_ITB not found."
+	echo "Error: Required ${build_label} binary $TIBOOT3_BIN not found."
 	exit 2
 fi
 

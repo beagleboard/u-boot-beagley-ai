@@ -39,7 +39,7 @@ build-debian-arm64:
   extends: .build_template
   parallel:
     matrix:
-      - DISTRO_VER: ["debian-14", "ubuntu-24.04"]
+      - DISTRO_VER: ["debian-14", "ubuntu-24.04", "ubuntu-26.04"]
   image: $REGISTRY_BASE/beagle-devscripts-kernel-${DISTRO_VER}-arm64:latest
   variables:
     TARGET_LOCK_NAME: "lock-${DISTRO_VER}"
@@ -65,6 +65,6 @@ pages:
   artifacts:
     when: on_success
     paths:
-      - public/
+      - public
   only:
     - main
