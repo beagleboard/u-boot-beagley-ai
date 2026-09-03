@@ -24,41 +24,33 @@ report_and_compare() {
 	local label="$2"
 	local size_file=".last_build_sizes.txt"
 	local summary_file=".build_summary.tmp"
+	local new_sizes_file=".new_sizes.txt"
 
 	if [ -f "$file_path" ]; then
 		local current_bytes
-		current_bytes=$(stat -c%s "$file_path")
-		local current_kb=$((current_bytes / 1024))
+		current_bytes=$(stat -c%s "$file_path" 2>/dev/null || echo 0)
+		[ "$current_bytes" -eq 0 ] && return
 
+		local current_kb=$((current_bytes / 1024))
 		local diff_kb=0
 		local diff_bytes=0
 		local status="NEW"
 
 		if [ -f "$size_file" ]; then
-			local prev_line
-			prev_line=$(grep "^${label}:" "$size_file" || true)
+			local prev_bytes
+			prev_bytes=$(grep "^${label}:" "$size_file" | cut -d':' -f2 || echo "$current_bytes")
 
-			if [ -n "$prev_line" ]; then
-				local prev_bytes
-				prev_bytes=$(echo "$prev_line" | cut -d':' -f2)
-				diff_bytes=$((current_bytes - prev_bytes))
-				diff_kb=$((diff_bytes / 1024))
+			diff_bytes=$((current_bytes - prev_bytes))
+			diff_kb=$((diff_bytes / 1024))
 
-				if [ "$diff_bytes" -gt 0 ]; then
-					status="INCREASED"
-				elif [ "$diff_bytes" -lt 0 ]; then
-					status="DECREASED"
-				else
-					status="UNCHANGED"
-				fi
-			fi
+			if [ "$diff_bytes" -gt 0 ]; then status="INCREASED";
+			elif [ "$diff_bytes" -lt 0 ]; then status="DECREASED";
+			else status="UNCHANGED"; fi
 		fi
 
 		echo "[$status] $label: ${current_kb}KB"
-
-		# Append to the summary file for the final report
-		# Format: Label | CurrentBytes | DiffBytes | DiffKB | Status
 		echo "${label}|${current_bytes}|${diff_bytes}|${diff_kb}|${status}" >> "$summary_file"
+		echo "${label}:${current_bytes}" >> "$new_sizes_file"
 	fi
 }
 
