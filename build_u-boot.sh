@@ -111,6 +111,8 @@ else
 	exit 2
 fi
 
+rm -rf ${DIR}/trusted-firmware-a || true
+
 echo "****************************************************"
 
 echo "Building OP-TEE (Platform: ${OPTEE_PLATFORM})..."
@@ -139,27 +141,29 @@ else
 	exit 2
 fi
 
+rm -rf ${DIR}/optee/ || true
+
 echo "****************************************************"
 
-echo "make -C ./u-boot/ O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
+echo "Building U-Boot CORTEX-R ($UBOOT_CFG_CORTEXR)..."
+
 make -C ./u-boot/ O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
-echo "****************************************************"
 
-echo "make -C ./u-boot/ -j${JOBS} O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/"
-make -C ./u-boot/ -j${JOBS} O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/
-echo "****************************************************"
-
-if [ ! -f ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ] ; then
-	echo "Failure in u-boot CORTEXR build of [$UBOOT_CFG_CORTEXR]"
-	ls -lha ${DIR}/CORTEXR/
-	exit 2
-else
-	cp -v ${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin ${DIR}/public/tiboot3.bin
-	if [ -f ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ] ; then
-		cp -v ${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb ${DIR}/public/sysfw.itb
-	fi
+if ! make -C ./u-boot/ -j${JOBS} O=../CORTEXR CROSS_COMPILE=$CC32 BINMAN_INDIRS=${DIR}/ti-linux-firmware/; then
+    echo "Error: U-Boot CORTEX-R build failed."
+    exit 2
 fi
-echo "****************************************************"
+
+R_BIN="${DIR}/CORTEXR/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin"
+R_ITB="${DIR}/CORTEXR/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb"
+
+if [ -f "$R_BIN" ]; then
+    cp -v "$R_BIN" "${DIR}/public/tiboot3.bin"
+    [ -f "$R_ITB" ] && cp -v "$R_ITB" "${DIR}/public/sysfw.itb"
+else
+    echo "Error: Required CORTEX-R binary $R_BIN not found."
+    exit 2
+fi
 
 rm -rf ${DIR}/CORTEXR/ || true
 
