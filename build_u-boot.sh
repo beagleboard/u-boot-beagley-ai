@@ -104,28 +104,42 @@ echo "****************************************************"
 TFA_OUTPUT="./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin"
 
 if [ -f "$TFA_OUTPUT" ]; then
-    cp -v "$TFA_OUTPUT" "${DIR}/public/"
+	cp -v "$TFA_OUTPUT" "${DIR}/public/"
 else
-    echo "Error: bl31.bin not found after TFA build."
-    ls -lha ${DIR}/trusted-firmware-a/
+	echo "Error: bl31.bin not found after TFA build."
+	ls -lha ${DIR}/trusted-firmware-a/
+	exit 2
+fi
+
+echo "****************************************************"
+
+echo "Building OP-TEE (Platform: ${OPTEE_PLATFORM})..."
+
+if ! make -C ./optee_os/ -j${JOBS} \
+    O=../optee \
+    CROSS_COMPILE=$CC32 \
+    CROSS_COMPILE64=$CC64 \
+    CFG_ARM64_core=y \
+    PLATFORM=${OPTEE_PLATFORM} \
+    $OPTEE_EXTRA_ARGS all; then
+    echo "Error: OP-TEE build failed."
+    ls -lha ${DIR}/optee_os/
     exit 2
 fi
+
 echo "****************************************************"
 
-echo "make -C ./optee_os/ -j${JOBS} O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all"
-make -C ./optee_os/ -j${JOBS} O=../optee CROSS_COMPILE=$CC32 CROSS_COMPILE64=$CC64 CFLAGS= LDFLAGS= CFG_ARM64_core=y $OPTEE_EXTRA_ARGS PLATFORM=${OPTEE_PLATFORM} all
-echo "****************************************************"
+TEE_PAGER="./optee/core/tee-pager_v2.bin"
 
-if [ ! -f ./optee/core/tee-pager_v2.bin ] ; then
-	echo "Failure in ${OPTEE_DIR}"
+if [ -f "$TEE_PAGER" ]; then
+	cp -v "$TEE_PAGER" "${DIR}/public/"
+else
+	echo "Error: tee-pager_v2.bin not found after OP-TEE build."
 	ls -lha ${DIR}/optee/
 	exit 2
-else
-	cp -v ./optee/core/tee-pager_v2.bin ${DIR}/public/
 fi
-echo "****************************************************"
 
-rm -rf ${DIR}/optee/ || true
+echo "****************************************************"
 
 echo "make -C ./u-boot/ O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR"
 make -C ./u-boot/ O=../CORTEXR CROSS_COMPILE=$CC32 $UBOOT_CFG_CORTEXR
