@@ -31,8 +31,6 @@ report_and_compare() {
 		current_bytes=$(stat -c%s "$file_path" 2>/dev/null || echo 0)
 		[ "$current_bytes" -eq 0 ] && return
 
-		local current_kb=$((current_bytes / 1024))
-		local diff_kb=0
 		local diff_bytes=0
 		local status="NEW"
 
@@ -41,15 +39,15 @@ report_and_compare() {
 			prev_bytes=$(grep "^${label}:" "$size_file" | cut -d':' -f2 || echo "$current_bytes")
 
 			diff_bytes=$((current_bytes - prev_bytes))
-			diff_kb=$((diff_bytes / 1024))
 
 			if [ "$diff_bytes" -gt 0 ]; then status="INCREASED";
 			elif [ "$diff_bytes" -lt 0 ]; then status="DECREASED";
 			else status="UNCHANGED"; fi
 		fi
 
-		echo "[$status] $label: ${current_kb}KB"
-		echo "${label}|${current_bytes}|${diff_bytes}|${diff_kb}|${status}" >> "$summary_file"
+		echo "[$status] $label: ${current_bytes}B"
+		# Changed summary format to remove diff_kb: label|current_bytes|diff_bytes|status
+		echo "${label}|${current_bytes}|${diff_bytes}|${status}" >> "$summary_file"
 		echo "${label}:${current_bytes}" >> "$new_sizes_file"
 	fi
 }
@@ -160,8 +158,8 @@ fi
 TFA_OUTPUT="./trusted-firmware-a/build/k3/${TFA_BOARD}/release/bl31.bin"
 
 if [ -f "$TFA_OUTPUT" ]; then
-	SIZE_KB=$(( $(stat -c%s "$TFA_OUTPUT") / 1024 ))
-	echo "TFA Output found: $TFA_OUTPUT (${SIZE_KB} KB)"
+	SIZE_B=$(stat -c%s "$TFA_OUTPUT")
+	echo "TFA Output found: $TFA_OUTPUT (${SIZE_B} B)"
 	cp -v "$TFA_OUTPUT" "${DIR}/public/"
 	report_and_compare "$TFA_OUTPUT" "TFA_BL31"
 else
@@ -190,8 +188,8 @@ fi
 
 TEE_PAGER="./optee/core/tee-pager_v2.bin"
 if [ -f "$TEE_PAGER" ]; then
-	SIZE_KB=$(( $(stat -c%s "$TEE_PAGER") / 1024 ))
-	echo "OP-TEE Pager found: $TEE_PAGER (${SIZE_KB} KB)"
+	SIZE_B=$(stat -c%s "$TEE_PAGER")
+	echo "OP-TEE Pager found: $TEE_PAGER (${SIZE_B} B)"
 	cp -v "$TEE_PAGER" "${DIR}/public/"
 	report_and_compare "$TEE_PAGER" "OPTEE_PAGER"
 else
@@ -220,12 +218,14 @@ TIBOOT3_BIN="${DIR}/${build_dir}/tiboot3-${SOC_NAME}-${SECURITY_TYPE}-evm.bin"
 SYSFW_ITB="${DIR}/${build_dir}/sysfw-${SOC_NAME}-${SECURITY_TYPE}-evm.itb"
 
 if [ -f "$TIBOOT3_BIN" ]; then
-	echo "${build_label} Bin found: $TIBOOT3_BIN ($(( $(stat -c%s "$TIBOOT3_BIN") / 1024 )) KB)"
+	SIZE_B=$(stat -c%s "$TIBOOT3_BIN")
+	echo "${build_label} Bin found: $TIBOOT3_BIN (${SIZE_B} B)"
 	cp -v "$TIBOOT3_BIN" "${DIR}/public/tiboot3.bin"
 	report_and_compare "$TIBOOT3_BIN" "TIBOOT3_BIN"
 
 	if [ -f "$SYSFW_ITB" ]; then
-		echo "${build_label} ITB found: $SYSFW_ITB ($(( $(stat -c%s "$SYSFW_ITB") / 1024 )) KB)"
+		SIZE_B=$(stat -c%s "$SYSFW_ITB")
+		echo "${build_label} ITB found: $SYSFW_ITB (${SIZE_B} B)"
 		cp -v "$SYSFW_ITB" "${DIR}/public/sysfw.itb"
 		report_and_compare "$SYSFW_ITB" "SYSFW_ITB"
 	fi
@@ -278,31 +278,24 @@ rm -rf "${DIR}/${build_dir}/"
 
 log_sep
 echo "FINAL BUILD SIZE REPORT"
-printf "%-15s | %-12s | %-12s | %-12s | %-10s\n" "COMPONENT" "SIZE (KB)" "DIFF (KB)" "DIFF (B)" "STATUS"
-echo "------------------------------------------------------------------------------------"
+printf "%-15s | %-12s | %-12s | %-12s | %-10s\n" "COMPONENT" "SIZE (KB)" "SIZE (B)" "DIFF (B)" "STATUS"
+echo "----------------------------------------------------------------------------------------------------"
 
 if [ -f ".build_summary.tmp" ]; then
-	while IFS='|' read -r label current_bytes diff_bytes diff_kb status; do
-		# Convert current_bytes to KB for the table
-		current_kb=$((current_bytes / 1024))
+	while IFS='|' read -r label current_bytes diff_bytes status; do
+		current_kb=$(( current_bytes / 1024 ))
 
-		# Format the diff string to show +/-
 		if [ "$diff_bytes" -gt 0 ]; then
-			diff_str_kb="+${diff_kb}KB"
-			diff_str_b="+${diff_bytes}B"
+			diff_str="+${diff_bytes}B"
 		elif [ "$diff_bytes" -lt 0 ]; then
-			# Use absolute value for display
-			abs_diff_kb=$(( (diff_kb * -1) ))
 			abs_diff_b=$(( (diff_bytes * -1) ))
-			diff_str_kb="-${abs_diff_kb}KB"
-			diff_str_b="-${abs_diff_b}B"
+			diff_str="-${abs_diff_b}B"
 		else
-			diff_str_kb="0KB"
-			diff_str_b="0B"
+			diff_str="0B"
 		fi
 
 		printf "%-15s | %-12s | %-12s | %-12s | %-10s\n" \
-			"$label" "$current_kb" "$diff_str_kb" "$diff_str_b" "$status"
+			"$label" "${current_kb}KB" "${current_bytes}B" "$diff_str" "$status"
 	done < ".build_summary.tmp"
 
 	rm ".build_summary.tmp"
