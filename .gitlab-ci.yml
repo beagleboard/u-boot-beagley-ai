@@ -35,8 +35,10 @@ before_script:
       fi
     - ./tools/ci-cleanup-ccache.sh
 
-build-debian-arm64:
+build-distro-arm64:
   extends: .build_template
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
   parallel:
     matrix:
       - DISTRO_VER: ["debian-14", "ubuntu-24.04", "ubuntu-26.04"]
@@ -51,6 +53,8 @@ build-debian-arm64:
 
 pages:
   extends: .build_template
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
   image: $REGISTRY_BASE/beagle-devscripts-kernel-${PROD_DISTRO_VER}-arm64:latest
   variables:
     TARGET_LOCK_NAME: "lock-${PROD_DISTRO_VER}"
@@ -66,5 +70,3 @@ pages:
     when: on_success
     paths:
       - public
-  only:
-    - main

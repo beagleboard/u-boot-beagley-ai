@@ -18,7 +18,7 @@ TFA="${TFA:-lts-v2.14.1}"
 #https://github.com/OP-TEE/optee_os/compare/4.9.0...4.10.0
 #https://forgejo.gfnd.rcn-ee.org:3000/mirror/optee_os/compare/4.9.0...4.10.0
 OPTEE_GIT="${OPTEE_GIT:-https://github.com/OP-TEE/optee_os.git}"
-OPTEE="${OPTEE:-4.9.0}"
+OPTEE="${OPTEE:-4.10.0}"
 
 #https://github.com/beagleboard/u-boot.git
 #https://github.com/beagleboard/u-boot/commits/v2026.04-Beagle/
