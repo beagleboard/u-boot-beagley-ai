@@ -24,4 +24,4 @@ OPTEE="${OPTEE:-4.10.0}"
 #https://github.com/beagleboard/u-boot/commits/v2026.04-Beagle/
 #https://forgejo.gfnd.rcn-ee.org:3000/BeagleBoard.org/u-boot/compare/v2026.01-Beagle...v2026.04-Beagle
 UBOOT_GIT="${UBOOT_GIT:-https://github.com/beagleboard/u-boot.git}"
-UBOOT="${UBOOT:-v2026.01-Beagle}"
+UBOOT="${UBOOT:-v2026.04-Beagle}"
