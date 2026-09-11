@@ -3,10 +3,10 @@
 BUILD_REPO="u-boot-beagley-ai"
 
 #https://github.com/TexasInstruments/ti-linux-firmware.git
-#https://github.com/TexasInstruments/ti-linux-firmware/compare/11.02.11...11.02.18
-#https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware/compare/11.02.11...11.02.18
+#https://github.com/TexasInstruments/ti-linux-firmware/compare/12.01.00.06...12.01.00.06
+#https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware/compare/12.01.00.06...12.01.00.06
 TI_FIRMWARE_GIT="${TI_FIRMWARE_GIT:-https://github.com/TexasInstruments/ti-linux-firmware.git}"
-TI_FIRMWARE="${TI_FIRMWARE:-11.02.18}"
+TI_FIRMWARE="${TI_FIRMWARE:-12.01.00.06}"
 
 #https://github.com/TrustedFirmware-A/trusted-firmware-a.git
 #https://github.com/TrustedFirmware-A/trusted-firmware-a/compare/lts-v2.14.5...lts-v2.14.6
@@ -22,6 +22,6 @@ OPTEE="${OPTEE:-4.10.0}"
 
 #https://github.com/beagleboard/u-boot.git
 #https://github.com/beagleboard/u-boot/commits/v2026.04-Beagle/
-#https://forgejo.gfnd.rcn-ee.org:3000/BeagleBoard.org/u-boot/compare/v2026.01-Beagle...v2026.04-Beagle
+#https://forgejo.gfnd.rcn-ee.org:3000/BeagleBoard.org/u-boot/compare/v2026.04-Beagle...v2026.07-Beagle
 UBOOT_GIT="${UBOOT_GIT:-https://github.com/beagleboard/u-boot.git}"
-UBOOT="${UBOOT:-v2026.04-Beagle}"
+UBOOT="${UBOOT:-v2026.07-Beagle}"
