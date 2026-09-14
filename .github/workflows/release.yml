@@ -36,6 +36,11 @@ jobs:
       - name: Create tarball
         run: tar -cJf "public/bootfs.tar.xz" -C public tiboot3.bin tispl.bin u-boot.img
 
+      - name: Generate os_list.json
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          ./tools/gen-os-list.py "${GITHUB_REF##*/}"
+            
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
@@ -46,3 +51,4 @@ jobs:
             public/tispl.bin
             public/u-boot.img
             public/bootfs.tar.xz
+            public/os_list.json
