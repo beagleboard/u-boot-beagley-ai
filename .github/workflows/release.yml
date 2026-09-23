@@ -24,18 +24,34 @@ jobs:
       - name: Set Variables UBOOT, TFA and TI_FIRMWARE
         if: startsWith(github.ref, 'refs/tags/')
         run: |
+          # Get the tag without the 'v' prefix if necessary, 
+          # but we'll use the full tag string for parsing
           TAG="${GITHUB_REF##*/}"
+          
+          # Using a temporary variable to handle the splitting
+          # Example TAG: v2026.07-Beagle-lts-v2.14.7-12.02.00.01
+          
           # 1. Extract TI_FIRMWARE (Everything after the LAST hyphen)
           TI_FIRMWARE="${TAG##*-}"
-          # 2. Remove TI_FIRMWARE from the tag to get "UBOOT-TFA"
+          
+          # 2. Remove the TI_FIRMWARE part from the end
+          # This leaves: v2026.07-Beagle-lts-v2.14.7
           REMAINDER="${TAG%-*}"
+          
           # 3. Extract TFA (Everything after the LAST hyphen in the remainder)
+          # This leaves: lts-v2.14.7
           TFA="${REMAINDER##*-}"
+          
           # 4. Extract UBOOT (Everything before the last hyphen in the remainder)
+          # This leaves: v2026.07-Beagle
           UBOOT="${REMAINDER%-*}"
+          
           echo "UBOOT=$UBOOT" >> $GITHUB_ENV
           echo "TFA=$TFA" >> $GITHUB_ENV
           echo "TI_FIRMWARE=$TI_FIRMWARE" >> $GITHUB_ENV
+          
+          # Debugging: Print to logs so you can verify in Actions
+          echo "Parsed: UBOOT=$UBOOT, TFA=$TFA, TI_FIRMWARE=$TI_FIRMWARE"
 
       - name: Build U-Boot
         run: ./build_u-boot.sh
