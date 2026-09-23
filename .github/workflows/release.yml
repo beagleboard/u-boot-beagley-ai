@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     tags:
-      - 'v*-[0-9]+.[0-9]+.[0-9]+.[0-9]+'
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -25,10 +25,17 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           TAG="${GITHUB_REF##*/}"
-          # Everything before the final '-'
-          echo "UBOOT=${TAG%-*}" >> $GITHUB_ENV
-          # Everything after the final '-'
-          echo "TI_FIRMWARE=${TAG##*-}" >> $GITHUB_ENV
+          # 1. Extract TI_FIRMWARE (Everything after the LAST hyphen)
+          TI_FIRMWARE="${TAG##*-}"
+          # 2. Remove TI_FIRMWARE from the tag to get "UBOOT-TFA"
+          REMAINDER="${TAG%-*}"
+          # 3. Extract TFA (Everything after the LAST hyphen in the remainder)
+          TFA="${REMAINDER##*-}"
+          # 4. Extract UBOOT (Everything before the last hyphen in the remainder)
+          UBOOT="${REMAINDER%-*}"
+          echo "UBOOT=$UBOOT" >> $GITHUB_ENV
+          echo "TFA=$TFA" >> $GITHUB_ENV
+          echo "TI_FIRMWARE=$TI_FIRMWARE" >> $GITHUB_ENV
 
       - name: Build U-Boot
         run: ./build_u-boot.sh
