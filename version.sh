@@ -11,7 +11,7 @@ TI_FIRMWARE="${TI_FIRMWARE:-12.02.00.01}"
 #https://github.com/TrustedFirmware-A/trusted-firmware-a.git
 #https://github.com/TrustedFirmware-A/trusted-firmware-a/compare/lts-v2.14.6...lts-v2.14.7
 #https://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a/compare/lts-v2.14.6...lts-v2.14.7
-TFA_GIT="${TFA_GIT:-https://review.trustedfirmware.org/TF-A/trusted-firmware-a.git}"
+TFA_GIT="${TFA_GIT:-https://github.com/TrustedFirmware-A/trusted-firmware-a.git}"
 TFA="${TFA:-lts-v2.14.7}"
 
 #https://github.com/OP-TEE/optee_os.git
