@@ -3,16 +3,16 @@
 BUILD_REPO="u-boot-beagley-ai"
 
 #https://github.com/TexasInstruments/ti-linux-firmware.git
-#https://github.com/TexasInstruments/ti-linux-firmware/compare/12.01.00.06...12.01.00.06
-#https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware/compare/12.01.00.06...12.01.00.06
+#https://github.com/TexasInstruments/ti-linux-firmware/compare/12.01.00.06...12.02.00.01
+#https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware/compare/12.01.00.06...12.02.00.01
 TI_FIRMWARE_GIT="${TI_FIRMWARE_GIT:-https://github.com/TexasInstruments/ti-linux-firmware.git}"
-TI_FIRMWARE="${TI_FIRMWARE:-12.01.00.06}"
+TI_FIRMWARE="${TI_FIRMWARE:-12.02.00.01}"
 
 #https://github.com/TrustedFirmware-A/trusted-firmware-a.git
-#https://github.com/TrustedFirmware-A/trusted-firmware-a/compare/lts-v2.14.5...lts-v2.14.6
-#https://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a/compare/lts-v2.14.5...lts-v2.14.6
+#https://github.com/TrustedFirmware-A/trusted-firmware-a/compare/lts-v2.14.6...lts-v2.14.7
+#https://forgejo.gfnd.rcn-ee.org:3000/mirror/trusted-firmware-a/compare/lts-v2.14.6...lts-v2.14.7
 TFA_GIT="${TFA_GIT:-https://review.trustedfirmware.org/TF-A/trusted-firmware-a.git}"
-TFA="${TFA:-lts-v2.14.6}"
+TFA="${TFA:-lts-v2.14.7}"
 
 #https://github.com/OP-TEE/optee_os.git
 #https://github.com/OP-TEE/optee_os/compare/4.9.0...4.10.0
