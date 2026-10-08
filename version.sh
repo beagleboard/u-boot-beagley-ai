@@ -21,7 +21,7 @@ OPTEE_GIT="${OPTEE_GIT:-https://github.com/OP-TEE/optee_os.git}"
 OPTEE="${OPTEE:-4.10.0}"
 
 #https://github.com/beagleboard/u-boot.git
-#https://github.com/beagleboard/u-boot/commits/v2026.04-Beagle/
-#https://forgejo.gfnd.rcn-ee.org:3000/BeagleBoard.org/u-boot/compare/v2026.04-Beagle...v2026.07-Beagle
+#https://github.com/beagleboard/u-boot/commits/v2026.10-Beagle/
+#https://forgejo.gfnd.rcn-ee.org:3000/BeagleBoard.org/u-boot/compare/v2026.07-Beagle...v2026.10-Beagle
 UBOOT_GIT="${UBOOT_GIT:-https://github.com/beagleboard/u-boot.git}"
-UBOOT="${UBOOT:-v2026.07-Beagle}"
+UBOOT="${UBOOT:-v2026.10-Beagle}"
