@@ -1,0 +1,28 @@
+From 71b336c049f28e0ecaf33186419025afe23bde3b Mon Sep 17 00:00:00 2001
+From: Robert Nelson <robertcnelson@gmail.com>
+Date: Thu, 8 Oct 2026 12:48:14 -0500
+Subject: [PATCH] Revert "power: pmic: tps65219: fail if regulators node is
+ missing"
+
+This reverts commit 607d45d1e3b3f0e2b2a2e23799e8b43cd52a28da.
+
+Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
+---
+ drivers/power/pmic/tps65219.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/power/pmic/tps65219.c b/drivers/power/pmic/tps65219.c
+index 1fecde84795..0716af027a3 100644
+--- a/drivers/power/pmic/tps65219.c
++++ b/drivers/power/pmic/tps65219.c
+@@ -55,7 +55,6 @@ static int tps65219_bind(struct udevice *dev)
+ 	if (!ofnode_valid(regulators_node)) {
+ 		debug("%s: %s regulators subnode not found!\n", __func__,
+ 		      dev->name);
+-		return -ENXIO;
+ 	}
+ 
+ 	debug("%s: '%s' - found regulators subnode\n", __func__, dev->name);
+-- 
+2.55.0
+

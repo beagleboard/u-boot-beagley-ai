@@ -119,6 +119,27 @@ if [ ! -d "./u-boot/" ]; then
 	URL=$(get_git_url "/BeagleBoard.org/u-boot.git" "${UBOOT_GIT}")
 	echo "Cloning U-Boot from: ${URL}"
 	git clone -b "${UBOOT}" "${URL}" --depth=1 ./u-boot/
+	#git clone "${URL}" ./u-boot/ --reference /opt/git_repo/u-boot
+
+	#cd ./u-boot/
+
+	#git bisect start
+	#git bisect bad 964ad5b5c91b7be56e443e899d7f873e6aa8c9fc
+	#git bisect good 36c377b9859ffb53eb1e39ea31e8d96d1e0fe1e5
+	#git bisect bad c2ac5fc4e3bc91f59f059f115939d28fe35a7841
+	#git bisect bad 661b6e44a446953b472679345ced92a2bb68c4f9
+	#git bisect bad fcf44934dfdd0d43eb8f08f413590a44cab3169d
+	#git bisect bad 289b1bae1c798b12729f5467fcb34fffa49ef9a8
+	#git bisect good fc55d1e91094666fd04c8351ad13dac3b0b2ddf9
+	#git bisect bad d13ee7acafb93a8b8753083ee82a594da121f745
+	#git bisect bad 607d45d1e3b3f0e2b2a2e23799e8b43cd52a28da
+
+	# first 'bad' commit: [607d45d1e3b3f0e2b2a2e23799e8b43cd52a28da] power: pmic: tps65219: fail if regulators node is missing
+
+	#patch -p1 < ../patches/0001-*.patch
+	#patch -p1 < ../patches/0005-*.patch
+
+	#cd ../
 fi
 
 log_sep
@@ -195,6 +216,7 @@ else
 	exit 2
 fi
 
+rm -rf "${DIR}/optee_os/"
 rm -rf "${DIR}/optee/"
 
 # --- U-Boot Cortex-R Build ---
@@ -275,6 +297,8 @@ else
 fi
 
 rm -rf "${DIR}/${build_dir}/"
+
+rm -rf "${DIR}/u-boot"
 
 log_sep
 echo "FINAL BUILD SIZE REPORT"
