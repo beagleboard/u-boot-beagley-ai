@@ -119,8 +119,9 @@ if [ ! -d "./u-boot/" ]; then
 	URL=$(get_git_url "/BeagleBoard.org/u-boot.git" "${UBOOT_GIT}")
 	echo "Cloning U-Boot from: ${URL}"
 	git clone -b "${UBOOT}" "${URL}" --depth=1 ./u-boot/
-	#git clone "${URL}" ./u-boot/ --reference /opt/git_repo/u-boot
 
+	# git bisect:
+	#git clone "${URL}" ./u-boot/ --reference /opt/git_repo/u-boot
 	#cd ./u-boot/
 
 	#git bisect start
@@ -297,7 +298,6 @@ else
 fi
 
 rm -rf "${DIR}/${build_dir}/"
-
 rm -rf "${DIR}/u-boot"
 
 log_sep
