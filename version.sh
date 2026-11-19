@@ -3,10 +3,10 @@
 BUILD_REPO="u-boot-beagley-ai"
 
 #https://github.com/TexasInstruments/ti-linux-firmware.git
-#https://github.com/TexasInstruments/ti-linux-firmware/compare/12.01.00.06...12.02.00.01
-#https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware/compare/12.01.00.06...12.02.00.01
+#https://github.com/TexasInstruments/ti-linux-firmware/compare/12.02.00.01...12.02.00.06
+#https://forgejo.gfnd.rcn-ee.org:3000/TexasInstruments/ti-linux-firmware/compare/12.02.00.01...12.02.00.06
 TI_FIRMWARE_GIT="${TI_FIRMWARE_GIT:-https://github.com/TexasInstruments/ti-linux-firmware.git}"
-TI_FIRMWARE="${TI_FIRMWARE:-12.02.00.01}"
+TI_FIRMWARE="${TI_FIRMWARE:-12.02.00.06}"
 
 #https://github.com/TrustedFirmware-A/trusted-firmware-a.git
 #https://github.com/TrustedFirmware-A/trusted-firmware-a/compare/lts-v2.14.9...lts-v2.14.10
