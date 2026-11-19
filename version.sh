@@ -15,10 +15,10 @@ TFA_GIT="${TFA_GIT:-https://github.com/TrustedFirmware-A/trusted-firmware-a.git}
 TFA="${TFA:-lts-v2.14.14}"
 
 #https://github.com/OP-TEE/optee_os.git
-#https://github.com/OP-TEE/optee_os/compare/4.9.0...4.10.0
-#https://forgejo.gfnd.rcn-ee.org:3000/mirror/optee_os/compare/4.9.0...4.10.0
+#https://github.com/OP-TEE/optee_os/compare/4.10.0...4.11.0
+#https://forgejo.gfnd.rcn-ee.org:3000/mirror/optee_os/compare/4.10.0...4.11.0
 OPTEE_GIT="${OPTEE_GIT:-https://github.com/OP-TEE/optee_os.git}"
-OPTEE="${OPTEE:-4.10.0}"
+OPTEE="${OPTEE:-4.11.0}"
 
 #https://github.com/beagleboard/u-boot.git
 #https://github.com/beagleboard/u-boot/commits/v2026.10-Beagle/
